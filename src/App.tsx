@@ -1,11 +1,16 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import IdleInputs from './components/IdleInputs/index';
 import CountdownTimer from './components/CountdownTimer';
 import RunningControls from './components/RunningControls';
+import Status from './components/Status';
 
-enum ActivityType {
+const POM_MINUTES = 25;
+const SHORT_BREAK_MINUTES = 5;
+const LONG_BREAK_MINUTES = 15;
+
+
+export enum ActivityType {
   Focus = "focus",
   Break = "break" 
 };
@@ -13,18 +18,13 @@ export enum DistractionType {
   Internal = 'internal',
   External = 'external'
 };
-enum CurrentState {
-  Idling = 'idling',
-  Focusing = 'focusing',
-  Relaxing = 'relaxing',
-};
 
 type Distraction = {
   description: string,
   type: DistractionType
 }
 
-type Activity = {
+export type Activity = {
   start: number,
   scheduledEnd: number;
   end: number | null,
@@ -33,6 +33,12 @@ type Activity = {
   distractions?: Distraction[],
   tags?: string[]
 }
+
+enum CurrentState {
+  Idling = 'idling',
+  Focusing = 'focusing',
+  Relaxing = 'relaxing',
+};
 
 function getUnixTime() : number {
   return Math.floor(Date.now() / 1000);
@@ -46,6 +52,13 @@ function deepCopy<T>(thing: T): T {
   return JSON.parse(JSON.stringify(thing));
 }
 
+function prettifyTimes(key : string, value : any) {
+  if((key === 'start' || key === 'scheduledEnd' || key === 'end') && value) {
+    return (new Date(value * 1000)).toLocaleString();
+  }
+  return value;
+}
+
 let intervalId : undefined | number = undefined;
 
 function App() {
@@ -53,7 +66,32 @@ function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentTime, setCurrentTime] = useState(getUnixTime());
   const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
-  
+
+  //load from local storage on page load
+  useEffect(()=>{
+    const activitiesJson = localStorage.getItem('activities');
+    if(activitiesJson) {
+      const parsedActivities = JSON.parse(activitiesJson) as Activity[];
+      setActivities(parsedActivities);
+    }
+
+    const currentActivityJson = localStorage.getItem('currentActivity');
+    if(currentActivityJson) {
+      const parsedActivity = JSON.parse(currentActivityJson) as Activity;
+      setCurrentActivity(parsedActivity);
+    }
+  }, []);
+
+  //save activities when updated
+  useEffect(()=>{
+    localStorage.setItem("activities", JSON.stringify(activities));
+  }, [activities]);
+
+  //save currentActivity when updated
+  useEffect(()=>{
+    localStorage.setItem("currentActivity", JSON.stringify(currentActivity));
+  }, [currentActivity]);
+
   let currentState : CurrentState;
   if(currentActivity && currentActivity.end === null){
     switch(currentActivity.type){
@@ -102,15 +140,15 @@ function App() {
   const [hasNotifiedTimout, setHasNotifiedTimout] = useState(false);
   useEffect(() => {
     if(currentState !== CurrentState.Idling && currentActivity && currentTime > currentActivity.scheduledEnd && !hasNotifiedTimout) {
-      new Notification("times up", {requireInteraction: true});
+      new Notification(`${currentActivity.type} time complete`, {requireInteraction: true});
       setHasNotifiedTimout(true);
     }
   });
 
-  //set up new focus activity
+  //set current activity to focus
   function startFocus(goal: string, tags: string[]){
     const start = getUnixTime();
-    const scheduledEnd = start + minutesToSeconds(0.1);
+    const scheduledEnd = start + minutesToSeconds(POM_MINUTES);
     const activity : Activity = {
       start,
       end: null,
@@ -124,6 +162,7 @@ function App() {
     setHasNotifiedTimout(false);
   }
 
+  //set current activity to a break
   function startBreak(minutes: number){
     const start = getUnixTime();
     const scheduledEnd = start + minutesToSeconds(minutes);
@@ -133,6 +172,8 @@ function App() {
       scheduledEnd,
       type: ActivityType.Break
     }
+    setCurrentActivity(activity);
+    setHasNotifiedTimout(false);
   }
 
   function addDistraction(description: string, type: DistractionType) {
@@ -171,12 +212,14 @@ function App() {
         <IdleInputs
           startFocus={startFocus}
           startBreak={startBreak}
+          shortBreakMinutes={SHORT_BREAK_MINUTES}
+          longBreakMinutes={LONG_BREAK_MINUTES} 
         />
       )
       break;
     case CurrentState.Focusing:
     case CurrentState.Relaxing:
-      controls = <RunningControls addDistraction={addDistraction} stopActivity={stopActivity}  />
+      controls = <RunningControls addDistraction={addDistraction} stopActivity={stopActivity} />
       break;
     default:
       console.error(`Unsupported currentState: ${currentState}`)
@@ -197,18 +240,23 @@ function App() {
           yapt: yet another pomodoro timer
         </p>
       </header>
-      <div className="Timer-controls">
-        {timer}
-        {controls}
+      <div className="App-body">
+        <Status activity={currentActivity} currentTime={currentTime}/>
+        <div className="Timer-controls">
+          {timer}
+          {controls}
+        </div>
+        <hr/>
+        <h2>Current Activity</h2>
+        <pre>
+          {JSON.stringify(currentActivity, prettifyTimes, 2)}
+        </pre>
+        <hr/>
+        <h2>Previous Activities</h2>
+        <pre>
+          {JSON.stringify(Array.from(activities).reverse(), prettifyTimes, 2)}
+        </pre>
       </div>
-      <hr/>
-      <pre>
-        {JSON.stringify(currentActivity, undefined, 2)}
-      </pre>
-      <hr/>
-      <pre>
-        {JSON.stringify(activities, undefined, 2)}
-      </pre>
     </div>
   );
 }

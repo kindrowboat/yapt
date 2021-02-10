@@ -50,8 +50,8 @@ export default function RunningControls(props : RunningControlsProps){
             return(
                 <React.Fragment>
                     <input type="text" placeholder="Distraction description..." onChange={(e)=>setDistractionDescription(e.target.value)} value={distractionDescription}/>
-                    <label><input type="radio" value={DistractionType.Internal} onClick={()=>setDistractionType(DistractionType.Internal)}/>Internal</label>
-                    <label><input type="radio" value={DistractionType.External} onClick={()=>setDistractionType(DistractionType.External)}/>External</label>
+                    <label><input type="radio" value={DistractionType.Internal} checked={distractionType === DistractionType.Internal} onChange={()=>setDistractionType(DistractionType.Internal)}/>Internal</label>
+                    <label><input type="radio" value={DistractionType.External} checked={distractionType === DistractionType.External} onChange={()=>setDistractionType(DistractionType.External)}/>External</label>
                     <button 
                     onClick={()=>{addDistraction(distractionDescription, distractionType); setScreenState(ScreenState.Default)}}>
                     Add
