@@ -35,7 +35,7 @@ export default function Status(props : StatusProps) {
     if(activity === null) {
         icon = "💤";
     } else if(activity.scheduledEnd > currentTime) {
-        icon = "🤔";
+        icon = activity.type === ActivityType.Focus ? "🤔" : "😎";
     } else {
         icon = "⌛";
     }
