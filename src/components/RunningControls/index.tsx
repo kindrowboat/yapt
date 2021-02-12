@@ -26,8 +26,10 @@ export default function RunningControls(props : RunningControlsProps){
 
     const [stopTimeString, setStopTimeString] = useState("");
     
-    function handleStopActivity() {
+    function handleStopActivity(e : React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         const stopTime = Date.parse(stopTimeString);
+        debugger;
         if(stopTime) {
             stopActivity(Math.floor(stopTime / 1000));
         } else {
@@ -35,37 +37,43 @@ export default function RunningControls(props : RunningControlsProps){
         }
     }
 
+    function handleAddDistraction(e : React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        addDistraction(distractionDescription, distractionType);
+        setDistractionDescription("");
+        setDistractionType(DistractionType.Internal);
+        setScreenState(ScreenState.Default);
+    }
+
     switch(screenState) {
         case ScreenState.Default:
             return(
                 <React.Fragment>
-                    <button onClick={()=>setScreenState(ScreenState.AddingDistraction)}>Add Distraction</button>
+                    <button autoFocus accessKey="a" onClick={()=>setScreenState(ScreenState.AddingDistraction)}><u>A</u>dd Distraction</button>
                     <button
+                      accessKey="n"
                       onClick={()=>{setScreenState(ScreenState.StoppingActivity); setStopTimeString((new Date()).toLocaleString())}}>
-                      End Activity
+                      E<u>n</u>d Activity
                     </button>
                 </React.Fragment>
             );
         case ScreenState.AddingDistraction:
             return(
-                <React.Fragment>
-                    <input type="text" placeholder="Distraction description..." onChange={(e)=>setDistractionDescription(e.target.value)} value={distractionDescription}/>
-                    <label><input type="radio" value={DistractionType.Internal} checked={distractionType === DistractionType.Internal} onChange={()=>setDistractionType(DistractionType.Internal)}/>Internal</label>
-                    <label><input type="radio" value={DistractionType.External} checked={distractionType === DistractionType.External} onChange={()=>setDistractionType(DistractionType.External)}/>External</label>
-                    <button 
-                    onClick={()=>{addDistraction(distractionDescription, distractionType); setScreenState(ScreenState.Default)}}>
-                    Add
-                    </button>
-                    <button onClick={()=>setScreenState(ScreenState.Default)}>Back</button>
-                </React.Fragment>
+                <form onSubmit={handleAddDistraction}>
+                    <input autoFocus type="text" placeholder="Distraction description..." onChange={(e)=>setDistractionDescription(e.target.value)} value={distractionDescription}/>
+                    <label accessKey="i"><input type="radio" value={DistractionType.Internal} checked={distractionType === DistractionType.Internal} onChange={()=>setDistractionType(DistractionType.Internal)}/><u>I</u>nternal</label>
+                    <label accessKey="x"><input type="radio" value={DistractionType.External} checked={distractionType === DistractionType.External} onChange={()=>setDistractionType(DistractionType.External)}/>E<u>x</u>ternal</label>
+                    <button accessKey="a" type="submit"><u>A</u>dd</button>
+                    <button accessKey="b" onClick={()=>setScreenState(ScreenState.Default)}><u>B</u>ack</button>
+                </form>
             );
         case ScreenState.StoppingActivity:
             return(
-                <React.Fragment>
-                    <input type="text" placeholder="Stop time..." value={stopTimeString} onChange={e=>setStopTimeString(e.target.value)}/>
-                    <button onClick={()=>handleStopActivity()}>Confirm</button>
-                    <button onClick={()=>setScreenState(ScreenState.Default)}>Back</button>
-                </React.Fragment>
+                <form onSubmit={handleStopActivity}>
+                    <input autoFocus type="text" placeholder="Stop time..." value={stopTimeString} onChange={e=>setStopTimeString(e.target.value)}/>
+                    <button accessKey="c" type="submit"><u>C</u>onfirm</button>
+                    <button accessKey="b" onClick={()=>setScreenState(ScreenState.Default)}><u>B</u>ack</button>
+                </form>
             )
     }
 }

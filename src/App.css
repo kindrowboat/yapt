@@ -11,3 +11,11 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+label {
+  display: block;
+}
+
+input[type=text] {
+  display: block;
+}

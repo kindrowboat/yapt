@@ -20,9 +20,9 @@ export default function IdleInputs(props : IdleInputsProps) {
         case ScreenState.Idle:
             return(
                 <React.Fragment>
-                    <button onClick={() => setScreenState(ScreenState.SetupFocus)}>Focus</button>
-                    <button onClick={() => startBreak(shortBreakMinutes)}>Short Break</button>
-                    <button onClick={() => startBreak(longBreakMinutes)}>Long Break</button>
+                    <button autoFocus accessKey="o" onClick={() => setScreenState(ScreenState.SetupFocus)}>F<u>o</u>cus</button>
+                    <button accessKey="s" onClick={() => startBreak(shortBreakMinutes)}><u>S</u>hort Break</button>
+                    <button accessKey="l" onClick={() => startBreak(longBreakMinutes)}><u>L</u>ong Break</button>
                 </React.Fragment>
             );
         case ScreenState.SetupFocus:
