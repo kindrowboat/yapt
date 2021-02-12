@@ -1,31 +1,34 @@
 import React, { useEffect, useState } from 'react';
+import { FocusType } from '../../App';
 
 type SetupFocusProps = {
-    startFocus: (description: string, type: string[])=>void,
-    cancel: ()=>void
-}
-
-enum Type{
-    Personal = "personal",
-    Work = "work"
+    startFocus: (description: string, duraction: number, type: string[])=>void,
+    cancel: ()=>void,
+    defaultFocusType: FocusType
 }
 
 export default function SetupFocus(props : SetupFocusProps) {
+    const {startFocus, cancel, defaultFocusType} = props;
+
     const [goal, setGoal] = useState("");
-    const [type, setType] = useState(Type.Work);
+    const [duration, setDuration] = useState(25);
+    const [type, setType] = useState(defaultFocusType);
 
     function handleSubmit(e : React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        props.startFocus(goal, [type])
+        startFocus(goal, duration, [type])
     }
 
     return(
         <form onSubmit={e => handleSubmit(e)}>
-            <input autoFocus type="text" placeholder="Goal" onChange={(e)=>setGoal(e.target.value)} value={goal}/>
-            <label accessKey="p"><input type="Radio" value={Type.Personal} checked={type === Type.Personal} onChange={()=>{setType(Type.Personal)}}/><u>P</u>ersonal</label>
-            <label accessKey="o"><input type="Radio" value={Type.Work} checked={type === Type.Work} onChange={()=>{setType(Type.Work)}}/>W<u>o</u>rk</label>
+            <label htmlFor="pomGoal" accessKey="g"><u>G</u>oal:</label>
+            <input autoFocus id="pomGoal" type="text" onChange={(e)=>setGoal(e.target.value)} value={goal}/>
+            <label htmlFor="pomDuration" accessKey="d"><u>D</u>uration:</label>
+            <input id="pomDuration" type="text" onChange={(e)=>setDuration(parseInt(e.target.value) || 0)} value={duration}/>
+            <label accessKey="p"><input type="Radio" value={FocusType.Personal} checked={type === FocusType.Personal} onChange={()=>{setType(FocusType.Personal)}}/><u>P</u>ersonal</label>
+            <label accessKey="o"><input type="Radio" value={FocusType.Work} checked={type === FocusType.Work} onChange={()=>{setType(FocusType.Work)}}/>W<u>o</u>rk</label>
             <button accessKey="s" type="submit"><u>S</u>tart</button>
-            <button accessKey="b" onClick={props.cancel}><u>B</u>ack</button>
+            <button accessKey="b" onClick={cancel}><u>B</u>ack</button>
         </form>
     )
 }

@@ -18,6 +18,14 @@ export enum DistractionType {
   Internal = 'internal',
   External = 'external'
 };
+export enum BreakType {
+  Short = 'short break',
+  Long = 'long break'
+};
+export enum FocusType{
+    Personal = "personal",
+    Work = "work"
+}
 
 type Distraction = {
   description: string,
@@ -29,9 +37,9 @@ export type Activity = {
   scheduledEnd: number;
   end: number | null,
   type: ActivityType,
-  goal?: string,
-  distractions?: Distraction[],
-  tags?: string[]
+  goal: string,
+  distractions: Distraction[],
+  tags: string[]
 }
 
 enum CurrentState {
@@ -66,6 +74,23 @@ function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentTime, setCurrentTime] = useState(getUnixTime());
   const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
+  const [lastUsedDistractionType, setLastUsedDistractionType] = useState(DistractionType.Internal);
+  const [lastUsedFocusType, setLastUsedFocusType] = useState(FocusType.Work);
+
+  //update the last used distraction and activity type
+  useEffect(()=>{
+    if(!currentActivity)
+      return;
+
+    const latestTag = currentActivity.tags[0];
+    const latestDistraction = currentActivity.distractions[currentActivity.distractions.length - 1];
+
+    if(currentActivity.type === ActivityType.Focus && latestTag && latestTag !== lastUsedFocusType)
+      setLastUsedFocusType(latestTag as FocusType);
+    if(latestDistraction && latestDistraction.type != lastUsedDistractionType) {
+      setLastUsedDistractionType(latestDistraction.type);
+    }
+  }, [currentActivity]);
 
   //load from local storage on page load
   useEffect(()=>{
@@ -146,9 +171,9 @@ function App() {
   });
 
   //set current activity to focus
-  function startFocus(goal: string, tags: string[]){
+  function startFocus(goal: string, duration: number, tags: string[]){
     const start = getUnixTime();
-    const scheduledEnd = start + minutesToSeconds(POM_MINUTES);
+    const scheduledEnd = start + minutesToSeconds(duration);
     const activity : Activity = {
       start,
       end: null,
@@ -163,14 +188,17 @@ function App() {
   }
 
   //set current activity to a break
-  function startBreak(minutes: number){
+  function startBreak(description: string, minutes: number, breakType: BreakType){
     const start = getUnixTime();
     const scheduledEnd = start + minutesToSeconds(minutes);
     const activity : Activity = {
       start,
       end: null,
       scheduledEnd,
-      type: ActivityType.Break
+      type: ActivityType.Break,
+      goal: description,
+      tags: [breakType],
+      distractions: [],
     }
     setCurrentActivity(activity);
     setHasNotifiedTimout(false);
@@ -214,12 +242,13 @@ function App() {
           startBreak={startBreak}
           shortBreakMinutes={SHORT_BREAK_MINUTES}
           longBreakMinutes={LONG_BREAK_MINUTES} 
+          defaultFocusType={lastUsedFocusType}
         />
       )
       break;
     case CurrentState.Focusing:
     case CurrentState.Relaxing:
-      controls = <RunningControls addDistraction={addDistraction} stopActivity={stopActivity} />
+      controls = <RunningControls addDistraction={addDistraction} stopActivity={stopActivity} defaultDistractionType={lastUsedDistractionType} />
       break;
     default:
       console.error(`Unsupported currentState: ${currentState}`)
