@@ -165,7 +165,8 @@ function App() {
   const [hasNotifiedTimout, setHasNotifiedTimout] = useState(false);
   useEffect(() => {
     if(currentState !== CurrentState.Idling && currentActivity && currentTime > currentActivity.scheduledEnd && !hasNotifiedTimout) {
-      new Notification(`${currentActivity.type} time complete`, {requireInteraction: true});
+      const notification = new Notification(`${currentActivity.type} time complete`, {requireInteraction: true, tag: 'renotify', renotify: true});
+      notification.onclick = () => {window.focus(); notification.close();}
       setHasNotifiedTimout(true);
     }
   });

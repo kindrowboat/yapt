@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FocusType } from '../../App';
 
 type SetupFocusProps = {
@@ -20,7 +20,7 @@ export default function SetupFocus(props : SetupFocusProps) {
     }
 
     return(
-        <form onSubmit={e => handleSubmit(e)}>
+        <form onSubmit={handleSubmit}>
             <label htmlFor="pomGoal" accessKey="g"><u>G</u>oal:</label>
             <input autoFocus id="pomGoal" type="text" onChange={(e)=>setGoal(e.target.value)} value={goal}/>
             <label htmlFor="pomDuration" accessKey="d"><u>D</u>uration:</label>
