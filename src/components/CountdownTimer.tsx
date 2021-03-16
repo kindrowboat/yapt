@@ -19,7 +19,7 @@ export default function CountdownTimer(props : CountdownTimerProps) {
     const {end, current} = props;
     const timeRemaining = formatTimeRemaining(end - current);
     return (
-        <pre style={{fontSize: 'xx-large'}}>
+        <pre>
             {timeRemaining}
         </pre>
     )
