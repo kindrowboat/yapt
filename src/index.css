@@ -6,8 +6,3 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-.Timer-controls pre {
-  font-size: 200px;
-  margin: 20px 0;
-}

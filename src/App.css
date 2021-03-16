@@ -1,6 +1,6 @@
-.App-body{
+.App-body {
   margin: 25px;
-} 
+}
 
 .App-header {
   background-color: #282c34;
@@ -10,6 +10,11 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.Timer-controls pre {
+  font-size: 200px;
+  margin: 20px 0;
 }
 
 label {
