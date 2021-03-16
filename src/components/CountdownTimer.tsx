@@ -12,7 +12,7 @@ function formatTimeRemaining(totalSecondsRemaining : number) {
     const secondsRemaining = totalSecondsRemaining % 60;
     const paddedMinutesRemaining = minutesRemaining < 10 ? ("0" + minutesRemaining) : ("" + minutesRemaining);
     const paddedSecondsRemaining = secondsRemaining < 10 ? ("0" + secondsRemaining) : ("" + secondsRemaining);
-    return `${pastDue ? "-" : " "}${paddedMinutesRemaining}:${paddedSecondsRemaining}`;
+    return `${pastDue ? "-" : ""}${paddedMinutesRemaining}:${paddedSecondsRemaining}`;
 }
 
 export default function CountdownTimer(props : CountdownTimerProps) {
