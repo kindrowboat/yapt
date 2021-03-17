@@ -12,6 +12,10 @@
   color: white;
 }
 
+.Status {
+  margin-bottom:0;
+}
+
 label {
   display: block;
 }

@@ -5,7 +5,7 @@ type CountdownTimerProps = {
     current : number
 }
 
-function formatTimeRemaining(totalSecondsRemaining : number) {
+export function formatTimeRemaining(totalSecondsRemaining : number) {
     const pastDue = totalSecondsRemaining < 0;
     totalSecondsRemaining = Math.abs(totalSecondsRemaining);
     const minutesRemaining = Math.floor(totalSecondsRemaining / 60);

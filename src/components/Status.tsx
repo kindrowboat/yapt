@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, ActivityType } from '../App';
+import { formatTimeRemaining } from './CountdownTimer';
 import './Status.css';
 
 type StatusProps = {
@@ -17,7 +18,7 @@ function updateFavicon(emoji : string) {
         } else {
             console.error("Could not find favicon link tag");
         }
-    } 
+    }
 }
 
 let title = "";
@@ -25,12 +26,12 @@ function updateTitle(newTitle : string) {
     if (newTitle !== title) {
         title = newTitle;
         document.title = newTitle;
-    } 
+    }
 }
 
 export default function Status(props : StatusProps) {
     const {activity, currentTime} = props;
-    
+
     let icon = "";
     if(activity === null) {
         icon = "💤";
@@ -39,7 +40,7 @@ export default function Status(props : StatusProps) {
     } else {
         icon = "⌛";
     }
-    
+
     let status = "";
     if(activity === null) {
         status = "Idling..."
@@ -49,12 +50,14 @@ export default function Status(props : StatusProps) {
         status = `Focusing on ${activity.goal}...`
     }
 
+    let timeRemaining = "";
+    if(activity !== null) {
+        timeRemaining = `${formatTimeRemaining(activity.scheduledEnd - currentTime)} `
+    }
 
     updateFavicon(icon);
-    updateTitle(status);
+    updateTitle(`${timeRemaining}${status}`);
     return(
-        <div className="Status">
-            <h1 style={{marginBottom: 0}}>{`${icon} ${title}`}</h1>
-        </div>
+        <h1 className="Status">{`${icon} ${status}`}</h1>
     );
 }
