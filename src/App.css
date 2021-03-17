@@ -17,6 +17,10 @@
   margin: 20px 0;
 }
 
+.Status {
+  margin-bottom:0;
+}
+
 label {
   display: block;
 }
